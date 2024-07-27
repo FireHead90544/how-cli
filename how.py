@@ -3,12 +3,31 @@ from typing_extensions import Annotated
 from rich.prompt import Prompt
 from core.config import Config
 from formatting import display_result
+from core import __version__
 
 app = typer.Typer(
     name="how",
     help="An AI-based CLI assistant to help you with command line & shell.",
 )
 config = Config()
+
+def get_version(value: bool):
+    """
+    Callback to get the version of the application.
+    """
+    if value:
+        typer.echo(f"v{__version__}")
+        raise typer.Exit()
+
+@app.callback()
+def show_version(
+    version: bool = typer.Option(False, "--version", "-v", help="Shows the version of the application", callback=get_version)
+):
+    """
+    Shows the version of the application.
+    """
+    pass
+
 
 @app.command()
 def to(
