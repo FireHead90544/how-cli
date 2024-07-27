@@ -1,12 +1,13 @@
 import typer
 from typing_extensions import Annotated
 from rich.prompt import Prompt
+from core.config import Config
 
 app = typer.Typer(
     name="how",
     help="An AI-based CLI assistant to help you with command line & shell.",
 )
-
+config = Config()
 
 @app.command()
 def to(
@@ -16,6 +17,12 @@ def to(
     Sends the task to the LLM for analysis.
     Returns the commands to be executed in order to achieve that.
     """
+    if not config.is_ready():
+        typer.secho(
+            "Please setup the configuration first using `how setup`", fg="red", bold=True
+        )
+        raise typer.Abort()
+
     print(f"Send {task} to LLM. Test Finished.")
 
 
@@ -43,8 +50,7 @@ def setup(
 
         typer.confirm("Do you want to save the configuration?", abort=True)
 
-    # Save the configration
-    print(api_key, provider)
+    config.setup(provider, api_key)
 
 
 if __name__ == "__main__":
