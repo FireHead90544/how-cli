@@ -14,10 +14,10 @@ Would be adding install instructions and better demo soon, until then check this
 
 ## Installation
 **1. Using `pip`**
-  - Ensure python is installed on your system. (Python 3.11+)
+  - Ensure python is installed on your system. (Tested against Python 3.11+)
   - Install the package using pip.
   ```bash
-  pip install how-cli
+  pip install -U how-cli
   ```
 **2. Manual Installation**
   - Clone the repository & cd into it
@@ -25,13 +25,9 @@ Would be adding install instructions and better demo soon, until then check this
   git clone https://github.com/FireHead90544/how-cli && cd how-cli
   ```
   - Ensure you're in a virtual environment.
-  - Install poetry.
+  - Install the application.
   ```bash
-  pip install poetry
-  ```
-  - Install the dependencies.
-  ```bash
-  poetry install
+  pip install -e .
   ```
 
 
