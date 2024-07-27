@@ -2,6 +2,7 @@ import typer
 from typing_extensions import Annotated
 from rich.prompt import Prompt
 from core.config import Config
+from formatting import display_result
 
 app = typer.Typer(
     name="how",
@@ -21,7 +22,9 @@ def to(
         typer.secho("Please setup the configuration first using `how setup`", fg="red", bold=True)
         raise typer.Abort()
 
-    print(f"Send {task} to LLM. Test Finished.")
+    from infer import get_result
+    result = get_result(task)
+    display_result(task, result)
 
 
 @app.command()
