@@ -35,3 +35,17 @@ class Config:
         """
         with open(self.config_file) as f:
             return json.load(f)
+        
+    def is_ready(self):
+        """
+        Check if the configuration file is ready to use.
+        """
+        try:
+            with open(self.config_file) as f:
+                config = json.load(f)
+                assert config.get("provider")
+                assert config.get("api_key")
+        except:
+            return False
+
+        return True
