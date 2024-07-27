@@ -18,9 +18,7 @@ def to(
     Returns the commands to be executed in order to achieve that.
     """
     if not config.is_ready():
-        typer.secho(
-            "Please setup the configuration first using `how setup`", fg="red", bold=True
-        )
+        typer.secho("Please setup the configuration first using `how setup`", fg="red", bold=True)
         raise typer.Abort()
 
     print(f"Send {task} to LLM. Test Finished.")
@@ -36,19 +34,28 @@ def setup(
     Sets up the configuration required to run the application.
     Set the LLM Provider & the corresponding API Key.
     """
-    LLM_PROVIDERS = ["Gemini"]
-
+    from core.providers import LLM_PROVIDERS
+    
     if not interactive:
         if not provider or not api_key:
-            typer.secho(
-                "Please set the --provider and --api-key", fg="red", bold=True
-            )
+            typer.secho("Please set the --provider and --api-key", fg="red", bold=True)
+            raise typer.Abort()
+        if provider not in LLM_PROVIDERS.keys():
+            typer.secho("LLM Provider not available yet. Please select from the available options.", fg="red", bold=True)
             raise typer.Abort()
     else:
-        provider = Prompt.ask("Select the LLM Provider", choices=LLM_PROVIDERS)
+        provider = Prompt.ask("Select the LLM Provider", choices=list(LLM_PROVIDERS.keys()))
         api_key = Prompt.ask(f"Enter {provider} API Key", password=True)
 
         typer.confirm("Do you want to save the configuration?", abort=True)
+
+    # Test the API Key & Save the configuration only if it works
+    try:
+        llm = LLM_PROVIDERS.get(provider)["provider"](model=LLM_PROVIDERS.get(provider)['model'], api_key=api_key)
+        llm.invoke("Hi!")
+    except:
+        typer.secho("Invalid API Key for the given provider. Please try again.", fg="red", bold=True)
+        raise typer.Abort()
 
     config.setup(provider, api_key)
 
