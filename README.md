@@ -1,4 +1,4 @@
-# how
+# how-cli
 An AI-based CLI assistant to help you with command line & shell.
 
 
@@ -22,7 +22,7 @@ Would be adding install instructions and better demo soon, until then check this
 **2. Manual Installation**
   - Clone the repository & cd into it
   ```bash
-  git clone https://github.com/FireHead90544/how && cd how
+  git clone https://github.com/FireHead90544/how-cli && cd how-cli
   ```
   - Ensure you're in a virtual environment.
   - Install poetry.
@@ -84,7 +84,7 @@ $ how to [OPTIONS] TASK
 
 
 ## Providers
-`how` uses ChatModels as they support chat messages as opposed to TextModels and below model providers and their corresponding models are available to use.
+`how-cli` uses ChatModels as they support chat messages as opposed to TextModels and below model providers and their corresponding models are available to use.
 
 | Provider | Model | Package |
 |:--------:|:-----:|:-------:|
