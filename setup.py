@@ -1,11 +1,11 @@
-from core import __version__, __author__
+from how import __version__, __author__
 from setuptools import setup, find_packages
 
 with open("README.md", "r") as f:
     readme = f.read()
 
 with open("requirements.txt", "r") as f:
-    requirements = f.read().strip().split("\n")
+    requirements = f.read().strip().splitlines()
 
 setup(
     name="how-cli",
@@ -25,7 +25,7 @@ setup(
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "how=how:app",
+            "how=how.how:app",
         ]
     }
 )
