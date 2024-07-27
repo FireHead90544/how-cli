@@ -9,7 +9,7 @@ class Config:
     def __init__(self):
         self.config_dir = Path.home() / ".how"
         self.config_file = self.config_dir / "config.json"
-        self.__init__config()
+        self.__init_config()
 
     def __init_config(self):
         """
@@ -19,7 +19,8 @@ class Config:
             self.config_dir.mkdir()
         
         if not self.config_file.exists():
-            self.config_file.touch()
+            with open(self.config_file, "w") as f:
+                json.dump({"provider": "", "api_key": ""}, f, indent=4)
 
     def setup(self, provider: str, api_key: str):
         """
@@ -41,10 +42,8 @@ class Config:
         Check if the configuration file is ready to use.
         """
         try:
-            with open(self.config_file) as f:
-                config = json.load(f)
-                assert config.get("provider")
-                assert config.get("api_key")
+            assert self.values.get("provider")
+            assert self.values.get("api_key")
         except:
             return False
 
