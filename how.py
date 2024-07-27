@@ -2,7 +2,10 @@ import typer
 from typing_extensions import Annotated
 from rich.prompt import Prompt
 
-app = typer.Typer()
+app = typer.Typer(
+    name="how",
+    help="An AI-based CLI assistant to help you with command line & shell.",
+)
 
 
 @app.command()
