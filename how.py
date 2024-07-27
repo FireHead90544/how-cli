@@ -80,7 +80,3 @@ def setup(
         raise typer.Abort()
 
     config.setup(provider, api_key)
-
-
-if __name__ == "__main__":
-    app()

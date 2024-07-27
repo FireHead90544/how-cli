@@ -1,3 +1,0 @@
-typer
-langchain
-langchain-google-genai
