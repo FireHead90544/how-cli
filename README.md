@@ -80,8 +80,13 @@ $ how to [OPTIONS] TASK
 
 
 ## Providers
-`how-cli` uses ChatModels as they support chat messages as opposed to TextModels and below model providers and their corresponding models are available to use.
+`how-cli` uses ChatModels as they support chat messages as opposed to TextModels and below model providers and their corresponding models are available to use. If you could test the models that are marked as ❌, please create an issue or pull request along with the test results.
 
-| Provider | Model | Package |
-|:--------:|:-----:|:-------:|
-| Google   | `gemini-1.5-flash` | `langchain-google-genai` |
+| Provider | Model | Package | Tested |
+|:--------:|:-----:|:-------:|:------:|
+| GoogleGenAI   | `gemini-1.5-flash` | `langchain-google-genai` | ✅ |
+| GoogleVertexAI | `gemini-1.5-flash` | `langchain-google-vertexai` | ❌ |
+| GroqMistralAI | `mixtral-8x7b-32768` | `langchain-groq` | ✅ |
+| GroqLLaMa | `llama3-70b-8192` | `langchain-groq` | ✅ |
+| OpenAI | `gpt-4o` | `langchain-openai` | ❌ |
+| Anthropic | `claude-3-5-sonnet-20240620` | `langchain-anthropic` | ❌ |
