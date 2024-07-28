@@ -1,7 +1,7 @@
 from how import __version__, __author__
 from setuptools import setup, find_packages
 
-with open("README.md", "r") as f:
+with open("README.md", "r", encoding="utf-8") as f:
     readme = f.read()
 
 with open("requirements.txt", "r") as f:
