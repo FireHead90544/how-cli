@@ -1,3 +1,7 @@
 typer
 langchain
 langchain-google-genai
+langchain-google-vertexai
+langchain-groq
+langchain-openai
+langchain-anthropic
