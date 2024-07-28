@@ -3,13 +3,7 @@ An AI-based CLI assistant to help you with command line & shell.
 
 
 ## Demo 
-Would be adding install instructions and better demo soon, until then check this out.
-### Setup
-![image](https://github.com/user-attachments/assets/87d3ba64-ecb7-43c6-9863-a62c39396ac5)
-
-### Inferences
-![image](https://github.com/user-attachments/assets/7af58310-183a-429b-aa66-e6abe36713fb)
-![image](https://github.com/user-attachments/assets/20062ac2-1057-4139-9f60-990bd41605da)
+https://github.com/user-attachments/assets/effefe1a-c0ed-4b60-838c-98f992f6c25f
 
 
 ## Installation
@@ -80,8 +74,23 @@ $ how to [OPTIONS] TASK
 
 
 ## Providers
-`how-cli` uses ChatModels as they support chat messages as opposed to TextModels and below model providers and their corresponding models are available to use.
+`how-cli` uses ChatModels as they support chat messages as opposed to TextModels and below model providers and their corresponding models are available to use. If you could test the models that are marked as ❌, please create an issue or pull request along with the test results.
 
-| Provider | Model | Package |
-|:--------:|:-----:|:-------:|
-| Google   | `gemini-1.5-flash` | `langchain-google-genai` |
+| Provider | Model | Package | Tested |
+|:--------:|:-----:|:-------:|:------:|
+| GoogleGenAI   | `gemini-1.5-flash` | `langchain-google-genai` | ✅ |
+| GoogleVertexAI | `gemini-1.5-flash` | `langchain-google-vertexai` | ❌ |
+| GroqMistralAI | `mixtral-8x7b-32768` | `langchain-groq` | ✅ |
+| GroqLLaMa | `llama3-70b-8192` | `langchain-groq` | ✅ |
+| OpenAI | `gpt-4o` | `langchain-openai` | ❌ |
+| Anthropic | `claude-3-5-sonnet-20240620` | `langchain-anthropic` | ❌ |
+
+
+# License
+`how-cil` is licensed under the MIT License, it can be found [here](https://github.com/FireHead90544/how-cli/blob/main/LICENSE).
+
+
+# Honourable Mentions
+This project is greatly inspired by [kynnyhsap's](https://github.com/kynnyhsap) [how](https://github.com/kynnyhsap/how). Though my implementation is completely different (refer to the below image for architectural details), but at the core both the projects aims to do the same thing. Also, check out LangChain & Typer using which this project was built.
+
+![arch](https://github.com/user-attachments/assets/5335fb1d-7899-4ebf-9ff3-dfa139a9c5f8)
