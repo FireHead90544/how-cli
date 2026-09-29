@@ -5,30 +5,62 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: read
+
 jobs:
-  build-and-publish:
+  validate:
+    uses: ./.github/workflows/validate-package.yml
+    with:
+      expected-version: ${{ github.ref_name }}
+
+  publish:
+    needs: validate
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install build dependencies
+      - name: Download validated distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: validated-distributions
+          path: dist
+      - name: Confirm version is not already on PyPI
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install build twine
+          python - <<'PY'
+          import os
+          from urllib.error import HTTPError
+          from urllib.request import urlopen
 
-      - name: Build package
-        run: python -m build
-
-      - name: Publish package to PyPI
+          version = os.environ["RELEASE_VERSION"].removeprefix("v")
+          try:
+              with urlopen(f"https://pypi.org/pypi/how-cli/{version}/json", timeout=20):
+                  raise SystemExit(f"Refusing to publish how-cli {version}: this version already exists on PyPI")
+          except HTTPError as error:
+              if error.code != 404:
+                  raise SystemExit(f"Could not check PyPI for how-cli {version}: HTTP {error.code}")
+          except Exception as error:
+              raise SystemExit(f"Could not check PyPI for how-cli {version}: {type(error).__name__}")
+          print(f"Version {version} is not currently on PyPI")
+          PY
+      - name: Install upload tool
+        run: python -m pip install --upgrade twine
+      - name: Publish distributions to PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload dist/*
+        run: |
+          if [ -z "$TWINE_PASSWORD" ]; then
+            echo "PyPI upload token is missing. Configure the PYPI_API_TOKEN repository secret or enable Trusted Publishing."
+            exit 1
+          fi
+          python -m twine upload --non-interactive dist/* || {
+            echo "PyPI upload failed. Check the repository token's validity and project permissions; credentials were not printed."
+            exit 1
+          }
