@@ -1,0 +1,84 @@
+name: Validate Package
+
+on:
+  workflow_call:
+    inputs:
+      expected-version:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      expected-version:
+        description: Expected package version
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-validate-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install build and metadata tools
+        run: python -m pip install --upgrade pip build twine packaging
+      - name: Build distributions
+        run: python -m build
+      - name: Validate distributions
+        run: python -m twine check dist/*
+      - name: Verify distributions and version
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected-version || github.event.inputs.expected-version }}
+        run: |
+          python - <<'PY'
+          import os
+          import tarfile
+          import zipfile
+          from pathlib import Path
+          from email.parser import Parser
+          from packaging.utils import canonicalize_name, parse_wheel_filename, parse_sdist_filename
+
+          expected = os.environ["EXPECTED_VERSION"].removeprefix("v")
+          artifacts = list(Path("dist").iterdir())
+          wheels = [path for path in artifacts if path.suffix == ".whl"]
+          sdists = [path for path in artifacts if path.name.endswith(".tar.gz")]
+          if len(wheels) != 1 or len(sdists) != 1:
+              raise SystemExit(f"Expected one wheel and one sdist, found {artifacts}")
+
+          wheel_name, wheel_version, *_ = parse_wheel_filename(wheels[0].name)
+          sdist_name, sdist_version = parse_sdist_filename(sdists[0].name)
+          with zipfile.ZipFile(wheels[0]) as archive:
+              metadata_path = next(name for name in archive.namelist() if name.endswith(".dist-info/METADATA"))
+              wheel_metadata = Parser().parsestr(archive.read(metadata_path).decode())
+          with tarfile.open(sdists[0], "r:gz") as archive:
+              metadata_path = next(name for name in archive.getnames() if name.endswith("/PKG-INFO"))
+              sdist_metadata = Parser().parsestr(archive.extractfile(metadata_path).read().decode())
+          if canonicalize_name(wheel_metadata["Name"]) != "how-cli" or canonicalize_name(sdist_metadata["Name"]) != "how-cli":
+              raise SystemExit("Distribution metadata has an unexpected package name")
+          versions = tuple(map(str, (wheel_version, sdist_version, wheel_metadata["Version"], sdist_metadata["Version"])))
+          if any(version != expected for version in versions):
+              raise SystemExit(f"Expected version {expected}; found {versions}")
+          for archive in (wheels[0], sdists[0]):
+              if archive.stat().st_size == 0:
+                  raise SystemExit(f"Empty distribution: {archive}")
+          print(f"Validated {wheel_name} {expected} in wheel and sdist")
+          PY
+      - name: Install wheel in a clean environment and smoke test
+        run: |
+          python -m venv /tmp/how-cli-wheel-env
+          /tmp/how-cli-wheel-env/bin/python -m pip install --upgrade pip
+          /tmp/how-cli-wheel-env/bin/python -m pip install dist/*.whl
+          cd /tmp
+          /tmp/how-cli-wheel-env/bin/how --version
+          /tmp/how-cli-wheel-env/bin/how --help
+          /tmp/how-cli-wheel-env/bin/python -c 'import how; print(how.__file__)'
+      - name: Save validated distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-distributions
+          path: dist/*
+          if-no-files-found: error
