@@ -82,7 +82,8 @@ def execute_commands(commands: list[str]) -> int:
     if not check_safety_gate(commands):
         return 1
 
-    if not typer.confirm("Are you sure you want to execute these commands?"):
+    import questionary
+    if not questionary.confirm("Are you sure you want to execute these commands?").ask():
         console.print("[yellow]Execution cancelled.[/yellow]")
         return 0
 
@@ -95,10 +96,11 @@ def execute_commands(commands: list[str]) -> int:
                     f"[bold red]Command failed with exit code {proc.returncode}[/bold red]"
                 )
                 if idx < len(commands):
-                    continue_run = typer.confirm(
+                    import questionary
+                    continue_run = questionary.confirm(
                         "Do you want to continue running the remaining commands?",
                         default=False,
-                    )
+                    ).ask()
                     if not continue_run:
                         console.print("[yellow]Execution stopped.[/yellow]")
                         return proc.returncode
@@ -130,7 +132,10 @@ def modify_commands(commands: list[str]) -> list[str]:
         readline.set_startup_hook(hook)
         edited = input("> ")
     except Exception:  # noqa: BLE001
-        edited = Prompt.ask("Edit command", default=joined)
+        import questionary
+        edited = questionary.text("Edit command:", default=joined).ask()
+        if edited is None:
+            edited = joined
     finally:
         with contextlib.suppress(Exception):
             import readline
