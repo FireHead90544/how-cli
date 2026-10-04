@@ -18,7 +18,7 @@ def test_setup_non_interactive(tmp_path):
         assert "Please provide --api-key for provider 'OpenAI'" in result.stdout
 
         # Test valid non-interactive setup (Ollama doesn't require API key)
-        with patch("how.how.get_llm") as mock_get_llm:
+        with patch("how.core.llm.get_llm") as mock_get_llm:
             # Mock get_llm to avoid actually calling the LLM
             mock_llm = mock_get_llm.return_value
             mock_llm.invoke.return_value = "Success"
