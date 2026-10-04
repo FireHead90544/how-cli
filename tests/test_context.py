@@ -35,14 +35,15 @@ def test_detect_project_no_markers(tmp_path: Path):
 
 
 def test_detect_shell_unix():
-    with patch.dict("os.environ", {"SHELL": "/bin/zsh"}):
-        assert detect_shell() == "zsh"
+    with patch("platform.system", return_value="Linux"):
+        with patch.dict("os.environ", {"SHELL": "/bin/zsh"}):
+            assert detect_shell() == "zsh"
 
-    with patch.dict("os.environ", {"SHELL": "/usr/bin/bash"}):
-        assert detect_shell() == "bash"
+        with patch.dict("os.environ", {"SHELL": "/usr/bin/bash"}):
+            assert detect_shell() == "bash"
 
-    with patch.dict("os.environ", {"SHELL": "/usr/bin/fish"}):
-        assert detect_shell() == "fish"
+        with patch.dict("os.environ", {"SHELL": "/usr/bin/fish"}):
+            assert detect_shell() == "fish"
 
 
 def test_detect_package_managers():

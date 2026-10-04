@@ -5,6 +5,7 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
+import questionary
 
 from how.core.safety import assess_risk
 
@@ -82,7 +83,7 @@ def execute_commands(commands: list[str]) -> int:
     if not check_safety_gate(commands):
         return 1
 
-    if not typer.confirm("Are you sure you want to execute these commands?"):
+    if not questionary.confirm("Are you sure you want to execute these commands?").ask():
         console.print("[yellow]Execution cancelled.[/yellow]")
         return 0
 
@@ -95,10 +96,10 @@ def execute_commands(commands: list[str]) -> int:
                     f"[bold red]Command failed with exit code {proc.returncode}[/bold red]"
                 )
                 if idx < len(commands):
-                    continue_run = typer.confirm(
+                    continue_run = questionary.confirm(
                         "Do you want to continue running the remaining commands?",
                         default=False,
-                    )
+                    ).ask()
                     if not continue_run:
                         console.print("[yellow]Execution stopped.[/yellow]")
                         return proc.returncode
@@ -130,7 +131,9 @@ def modify_commands(commands: list[str]) -> list[str]:
         readline.set_startup_hook(hook)
         edited = input("> ")
     except Exception:  # noqa: BLE001
-        edited = Prompt.ask("Edit command", default=joined)
+        edited = questionary.text("Edit command:", default=joined).ask()
+        if edited is None:
+            edited = joined
     finally:
         with contextlib.suppress(Exception):
             import readline
@@ -151,18 +154,20 @@ def interactive_action_menu(commands: list[str]) -> None:
 
     while True:
         try:
-            console.print(
-                "\n[bold]Options:[/bold] "
-                "[bold green][E]xecute[/bold green] | "
-                "[bold cyan][C]opy[/bold cyan] | "
-                "[bold yellow][M]odify[/bold yellow] | "
-                "[bold red][A]bort[/bold red]"
-            )
-            choice = Prompt.ask(
-                "Select an action",
-                choices=["e", "c", "m", "a", "E", "C", "M", "A"],
-                default="a",
-            ).lower()
+            choice = questionary.select(
+                "Select an action:",
+                choices=[
+                    questionary.Choice("Execute commands", "e"),
+                    questionary.Choice("Copy to clipboard", "c"),
+                    questionary.Choice("Modify command(s)", "m"),
+                    questionary.Choice("Abort", "a"),
+                ],
+                default="a"
+            ).ask()
+
+            if choice is None:
+                console.print("\n[yellow]Aborted.[/yellow]")
+                break
 
             if choice == "e":
                 execute_commands(current_commands)

@@ -247,28 +247,46 @@ def setup(
         selected_model = model or provider_info.get("model", "")
         selected_endpoint = endpoint or provider_info.get("endpoint", "")
     else:
-        provider = Prompt.ask(
-            "Select the LLM Provider", choices=list(LLM_PROVIDERS.keys())
-        )
+        import questionary
+
+        provider = questionary.select(
+            "Select the LLM Provider:",
+            choices=list(LLM_PROVIDERS.keys())
+        ).ask()
+
+        if provider is None:
+            raise typer.Abort()
+
         provider_info = LLM_PROVIDERS[provider]
 
         if provider_info.get("requires_key", True):
-            api_key = Prompt.ask(f"Enter {provider} API Key", password=True)
+            api_key = questionary.password(f"Enter {provider} API Key:").ask()
+            if api_key is None:
+                raise typer.Abort()
         else:
             api_key = ""
 
         default_model = provider_info.get("model", "")
-        selected_model = Prompt.ask("Enter model name", default=model or default_model)
+        selected_model = questionary.text(
+            "Enter model name:", default=model or default_model
+        ).ask()
+
+        if selected_model is None:
+            raise typer.Abort()
 
         if provider == "Ollama" or provider_info.get("endpoint"):
             default_endpoint = provider_info.get("endpoint", "http://localhost:11434")
-            selected_endpoint = Prompt.ask(
-                "Enter endpoint URL", default=endpoint or default_endpoint
-            )
+            selected_endpoint = questionary.text(
+                "Enter endpoint URL:", default=endpoint or default_endpoint
+            ).ask()
+            if selected_endpoint is None:
+                raise typer.Abort()
         else:
             selected_endpoint = endpoint or ""
 
-        typer.confirm("Do you want to save the configuration?", abort=True)
+        confirm = questionary.confirm("Do you want to save the configuration?").ask()
+        if not confirm:
+            raise typer.Abort()
 
     # Test the provider connection before saving
     with console.status("[bold green]Testing LLM connection...[/bold green]"):

@@ -63,6 +63,7 @@ Configure your preferred LLM provider. Supports both cloud providers (OpenAI, An
 ```bash
 how setup
 ```
+*(Features a keyboard-navigable selection menu for an easier first-time setup experience! Use your arrow keys to navigate and `Enter` to select.)*
 
 **Non-Interactive Mode**:
 ```bash
