@@ -5,6 +5,7 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
+import questionary
 
 from how.core.safety import assess_risk
 
@@ -82,7 +83,6 @@ def execute_commands(commands: list[str]) -> int:
     if not check_safety_gate(commands):
         return 1
 
-    import questionary
     if not questionary.confirm("Are you sure you want to execute these commands?").ask():
         console.print("[yellow]Execution cancelled.[/yellow]")
         return 0
@@ -96,7 +96,6 @@ def execute_commands(commands: list[str]) -> int:
                     f"[bold red]Command failed with exit code {proc.returncode}[/bold red]"
                 )
                 if idx < len(commands):
-                    import questionary
                     continue_run = questionary.confirm(
                         "Do you want to continue running the remaining commands?",
                         default=False,
@@ -132,7 +131,6 @@ def modify_commands(commands: list[str]) -> list[str]:
         readline.set_startup_hook(hook)
         edited = input("> ")
     except Exception:  # noqa: BLE001
-        import questionary
         edited = questionary.text("Edit command:", default=joined).ask()
         if edited is None:
             edited = joined
@@ -150,8 +148,6 @@ def modify_commands(commands: list[str]) -> list[str]:
 
 def interactive_action_menu(commands: list[str]) -> None:
     """Interactive action menu offering Execute, Copy, Modify, and Abort."""
-    import questionary
-
     current_commands = list(commands)
     if not current_commands:
         return
