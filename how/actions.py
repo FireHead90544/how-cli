@@ -145,24 +145,28 @@ def modify_commands(commands: list[str]) -> list[str]:
 
 def interactive_action_menu(commands: list[str]) -> None:
     """Interactive action menu offering Execute, Copy, Modify, and Abort."""
+    import questionary
+
     current_commands = list(commands)
     if not current_commands:
         return
 
     while True:
         try:
-            console.print(
-                "\n[bold]Options:[/bold] "
-                "[bold green][E]xecute[/bold green] | "
-                "[bold cyan][C]opy[/bold cyan] | "
-                "[bold yellow][M]odify[/bold yellow] | "
-                "[bold red][A]bort[/bold red]"
-            )
-            choice = Prompt.ask(
-                "Select an action",
-                choices=["e", "c", "m", "a", "E", "C", "M", "A"],
-                default="a",
-            ).lower()
+            choice = questionary.select(
+                "Select an action:",
+                choices=[
+                    questionary.Choice("Execute commands", "e"),
+                    questionary.Choice("Copy to clipboard", "c"),
+                    questionary.Choice("Modify command(s)", "m"),
+                    questionary.Choice("Abort", "a"),
+                ],
+                default="a"
+            ).ask()
+
+            if choice is None:
+                console.print("\n[yellow]Aborted.[/yellow]")
+                break
 
             if choice == "e":
                 execute_commands(current_commands)
