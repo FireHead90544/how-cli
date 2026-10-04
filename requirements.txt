@@ -7,3 +7,4 @@ langchain-openai
 langchain-anthropic
 langchain-ollama
 pyperclip
+questionary
